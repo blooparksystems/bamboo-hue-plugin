@@ -1,0 +1,68 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+        <param name="configure.url">/admin/plugins/hue/configuration</param>
+    </plugin-info>
+
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="hue"/>
+    
+    <!-- add our web resources -->
+    <web-resource key="hue-resources" name="hue Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>        
+        <resource type="download" name="hue.css" location="/css/hue.css"/>
+        <resource type="download" name="hue.js" location="/js/hue.js"/>
+        <resource type="download" name="images/" location="/images"/>
+        <context>hue</context>
+    </web-resource>
+
+
+
+    <!-- publish our component -->
+    <component key="myPluginComponent" class="com.bloopark.hue.MyPluginComponentImpl" public="true">
+        <interface>com.bloopark.hue.MyPluginComponent</interface>
+    </component>
+    
+    <!-- import from the product container -->
+    <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
+    <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" filter=""/>
+
+    <web-section key="bloopark" name="bloopark" location="system.admin" weight="110" application="bamboo">
+        <label key="Bloopark" />
+    </web-section>
+
+    <web-item key="bloopark_hue_key" name="bloopark_hue" section="system.admin/bloopark" weight="10" application="bamboo">
+        <label key="Configure Hue" />
+        <link linkId="actionKey">/plugins/servlet/hue</link>
+    </web-item>
+
+    <servlet name="My Servlet" i18n-name-key="my-servlet.name" key="my-servlet" class="com.bloopark.hue.HueConfigurationServlet">
+        <description key="my-servlet.description">The My Servlet Plugin</description>
+        <url-pattern>/hue</url-pattern>
+    </servlet>
+
+
+
+    <web-item key="bamboo-menu-item" name="XProduct Admin" section="system.admin/plugins" weight="10" application="bamboo">
+        <description>Link to xproduct-admin page.</description>
+        <label key="XProduct Admin" />
+        <link linkId="xproduct-admin-link">/plugins/servlet/hue</link>
+    </web-item>
+
+
+
+    <bambooEventListener key="buildHungNotificationListener" name="Build Hung Notification Listener"
+                         class="com.atlassian.bamboo.notification.buildhung.BuildHungNotificationListener">
+        <description>Listens for if a build has hung.</description>
+    </bambooEventListener>
+
+
+    <notificationRecipient key="recipient.hue" name="Hue Recipient" class="com.bloopark.hue.HueRecipient" weight="10">
+        <description>Hue</description>
+        <resource type="freemarker" name="edit" location="editNotification.ftl"/>
+    </notificationRecipient>
+</atlassian-plugin>

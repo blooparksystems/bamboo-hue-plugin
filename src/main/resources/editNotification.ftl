@@ -1,0 +1,17 @@
+[#if apiToken?has_content]
+    [@ww.textfield labelKey="hipchat.api.token" name="apiToken" value='${apiToken}' required='true'/]
+[#else]
+    [@ww.textfield labelKey="hipchat.api.token" name="apiToken" required='true'/]
+[/#if]
+
+[#if room?has_content]
+    [@ww.textfield labelKey="hipchat.room" name="room" value='${room}' required='true'/]
+[#else]
+    [@ww.textfield labelKey="hipchat.room" name="room" required='true'/]
+[/#if]
+
+[#if notify]
+    [@ww.checkbox labelKey="hipchat.notify" name="notify" checked="true" /]
+[#else]
+    [@ww.checkbox labelKey="hipchat.notify" name="notify" /]
+[/#if]
