@@ -27,24 +27,20 @@ import java.io.IOException;
  * To change this template use File | Settings | File Templates.
  */
 public class HueNotificationTransport implements NotificationTransport {
+
     private static final Logger log = Logger.getLogger(HueNotificationTransport.class);
-    public static final String FAILED_ICON = "plan_failed_16.png";
-    public static final String SUCCESSFUL_ICON = "plan_successful_16.png";
-    public static final String UNKNOWN_ICON = "plan_canceled_16.png";
     private String host;
     private String username;
-    private String port = "80";
-    private boolean notify;
+    private String port;
     private ResultsSummaryManager resultsSummaryManager;
     private AdministrationConfigurationManager administrationConfigurationManager;
     private HttpClient client;
 
-    public HueNotificationTransport(String host, String port, String username, boolean notify, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager, GravatarService gravatarService)
+    public HueNotificationTransport(String host, String port, String username, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
     {
         this.host = host;
         this.port = port;
         this.username = username;
-        this.notify = notify;
         this.resultsSummaryManager = resultsSummaryManager;
         this.administrationConfigurationManager = administrationConfigurationManager;
         this.client = new HttpClient();

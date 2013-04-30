@@ -1,5 +1,6 @@
 package com.bloopark.hue;
 
+
 import com.atlassian.sal.api.ApplicationProperties;
 
 public class MyPluginComponentImpl implements MyPluginComponent
@@ -17,7 +18,7 @@ public class MyPluginComponentImpl implements MyPluginComponent
         {
             return "myComponent:" + applicationProperties.getDisplayName();
         }
-        
+
         return "myComponent";
     }
 }
