@@ -10,6 +10,7 @@ import com.atlassian.bamboo.resultsummary.ResultsSummaryManager;
 import com.atlassian.bamboo.user.gravatar.GravatarService;
 import com.atlassian.event.Event;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -32,20 +33,31 @@ public class HueNotificationTransport implements NotificationTransport {
     private String host;
     private String username;
     private String port;
+    private String bulps;
     private ResultsSummaryManager resultsSummaryManager;
     private AdministrationConfigurationManager administrationConfigurationManager;
     private HttpClient client;
 
-    public HueNotificationTransport(String host, String port, String username, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
+    /*
+
+        Descriptor of the new class
+
+     */
+    public HueNotificationTransport(String host, String port, String username, String bulps, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
     {
         this.host = host;
         this.port = port;
         this.username = username;
+        this.bulps = bulps;
         this.resultsSummaryManager = resultsSummaryManager;
         this.administrationConfigurationManager = administrationConfigurationManager;
         this.client = new HttpClient();
     }
 
+    /*
+
+        send notifcation method overwritten. We will just need the build summery events of SUC and FAI and send via put the light codes
+     */
     @Override
     public void sendNotification(@NotNull Notification notification)
     {
@@ -66,26 +78,23 @@ public class HueNotificationTransport implements NotificationTransport {
             else if  (result.getBuildState() == BuildState.SUCCESS)
                 color = "green";
 
-            method = setupPutMethod(color);
-
-            System.out.println(" >>>>>>>>>> STATE: " + color);
-        }
-
-
             try
             {
-                client.executeMethod(method);
-                System.out.println(" >>>>>>>>>> RESULT: " + client.getState());
-                System.out.println(" >>>>>>>>>> RESULT: " + method.getResponseBodyAsString());
-                System.out.println(" >>>>>>>>>> RESULT: " + method.getRequestHeaders());
-                System.out.println(" >>>>>>>>>> RESULT: " + method.getStatusText());
-                System.out.println(" >>>>>>>>>> RESULT: " + method.getStatusCode());
+                String[] bulp = this.bulps.split(",");
+
+                for(int i=0;i<bulp.length;i++){
+                    method = setupPutMethod(color, bulp[i]);
+                    client.executeMethod(method);
+                }
+
             } catch (IOException e)
             {
                 log.error("Error using Hue API: " + e.getMessage(), e);
             }
 
+        }
     }
+
 
     private ResultsSummary getResultSummary(Event event)
     {
@@ -98,9 +107,14 @@ public class HueNotificationTransport implements NotificationTransport {
         return null;
     }
 
-    private PutMethod setupPutMethod(String color){
+
+    /*
+        PUT the JSON stuff to the API
+     */
+    private PutMethod setupPutMethod(String color, String bulp_id){
 
         String JSON = "";
+        String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights/"+bulp_id+"/state";
 
         if(color == "green"){
             JSON = "{\"on\":true, \"hue\": 25500}";
@@ -113,14 +127,15 @@ public class HueNotificationTransport implements NotificationTransport {
                     JSON,
                     "application/json",
                     "UTF-8");
-              PutMethod m = new PutMethod("http://87.174.121.30:2342/api/newdeveloper/lights/4/state");
+
+
+              PutMethod m = new PutMethod(url);
             m.setRequestEntity(requestEntity);
             return m;
 
         }catch (java.io.UnsupportedEncodingException e){}
 
         return null;
-
 
     }
 
