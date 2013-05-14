@@ -5,6 +5,7 @@ import com.atlassian.bamboo.notification.NotificationTransport;
 import com.atlassian.bamboo.notification.recipients.AbstractNotificationRecipient;
 import com.atlassian.bamboo.resultsummary.ResultsSummaryManager;
 import com.atlassian.bamboo.template.TemplateRenderer;
+import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +24,8 @@ public class HueRecipient extends AbstractNotificationRecipient {
     private String username     = null;
     private String bulps        = null;
     private String reset_ms     = null;
+    private String color_success = null;
+    private String color_failure = null;
 
     private TemplateRenderer templateRenderer;
     private ResultsSummaryManager resultsSummaryManager;
@@ -49,6 +52,10 @@ public class HueRecipient extends AbstractNotificationRecipient {
             bulps = params.get("hue_ids")[0];
         if (params.containsKey("hue_reset_ms"))
             reset_ms = params.get("hue_reset_ms")[0];
+        if (params.containsKey("hue_color_success"))
+            color_success = params.get("hue_color_success")[0];
+        if (params.containsKey("hue_color_failure"))
+            color_failure = params.get("hue_color_failure")[0];
 
     }
 
@@ -58,18 +65,18 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public void init(@Nullable String configurationData)
     {
-        int firstIdx = configurationData.indexOf('|');
+        int firstIdx = configurationData.indexOf(',');
         if (firstIdx > 0)
         {
-            int secondIdx = configurationData.indexOf('|', firstIdx + 1);
-            int thirdIdx = configurationData.indexOf('|', secondIdx + 1);
-            int forthIdx = configurationData.indexOf('|', thirdIdx + 1);
+            String conf[]   = configurationData.split(",");
 
-            host = configurationData.substring(0, firstIdx);
-            port = configurationData.substring(firstIdx + 1, secondIdx);
-            username = configurationData.substring(secondIdx + 1, thirdIdx);
-            bulps = configurationData.substring(thirdIdx + 1,forthIdx);
-            reset_ms = configurationData.substring(forthIdx + 1);
+            this.host       = conf[0];
+            this.port       = conf[1];
+            this.username   = conf[2];
+            this.bulps      = conf[3];
+            this.reset_ms   = conf[4];
+            this.color_success = conf[5];
+            this.color_failure = conf[6];
         }
     }
 
@@ -81,7 +88,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public String getRecipientConfig()
     {
-        return host + '|' + port + '|' + username + '|' + bulps + '|' + reset_ms;
+        return host + ',' + port + ',' + username + ',' + bulps + ',' + reset_ms + ',' + color_success + ',' + color_failure;
     }
 
     /*
@@ -104,6 +111,19 @@ public class HueRecipient extends AbstractNotificationRecipient {
         if (this.reset_ms != null)
             context.put("hue_reset_ms", this.reset_ms);
 
+        if(this.color_success == null){
+            context.put("hue_color_success", "green");
+        }else{
+            context.put("hue_color_success", this.color_success);
+        }
+
+        if(this.color_failure == null){
+            context.put("hue_color_failure", "red");
+        }else{
+            context.put("hue_color_failure", this.color_failure);
+        }
+
+
         return templateRenderer.render("editHue.ftl", context);
     }
 
@@ -119,7 +139,9 @@ public class HueRecipient extends AbstractNotificationRecipient {
                 + "<br/>Port: " + this.port
                 + "<br/>API username: " + this.username
                 + "<br/>Bulps: " + this.bulps
-                + "<br/>Reset time: " + this.reset_ms;
+                + "<br/>Reset time: " + this.reset_ms
+                + "<br/>Color success: " + this.color_success
+                + "<br/>Color failure: " + this.color_failure;
     }
 
 
@@ -131,7 +153,8 @@ public class HueRecipient extends AbstractNotificationRecipient {
     public List<NotificationTransport> getTransports()
     {
         ArrayList list = new ArrayList();
-        list.add(new HueNotificationTransport(host, port, username, bulps, reset_ms,  resultsSummaryManager, administrationConfigurationManager));
+
+        list.add(new HueNotificationTransport(host, port, username, bulps, reset_ms, color_success, color_failure, resultsSummaryManager, administrationConfigurationManager));
         return list;
     }
 
@@ -149,4 +172,5 @@ public class HueRecipient extends AbstractNotificationRecipient {
     {
         this.administrationConfigurationManager = administrationConfigurationManager;
     }
+
 }

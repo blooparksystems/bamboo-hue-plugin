@@ -33,6 +33,8 @@
 
     <notificationRecipient key="recipient.hue" name="Hue Recipient" class="com.bloopark.hue.HueRecipient" weight="10">
         <description>Hue</description>
-        <resource type="freemarker" name="edit" location="editNotification.ftl"/>
+        <resource type="freemarker" name="edit" location="editHue.ftl"/>
     </notificationRecipient>
+
+
 </atlassian-plugin>
