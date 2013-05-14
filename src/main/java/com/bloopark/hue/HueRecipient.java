@@ -18,10 +18,11 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class HueRecipient extends AbstractNotificationRecipient {
-    private String host = null;
-    private String port = null;
-    private String username = null;
-    private String bulps = null;
+    private String host         = null;
+    private String port         = null;
+    private String username     = null;
+    private String bulps        = null;
+    private String reset_ms     = null;
 
     private TemplateRenderer templateRenderer;
     private ResultsSummaryManager resultsSummaryManager;
@@ -46,6 +47,8 @@ public class HueRecipient extends AbstractNotificationRecipient {
             username = params.get("hue_username")[0];
         if (params.containsKey("hue_ids"))
             bulps = params.get("hue_ids")[0];
+        if (params.containsKey("hue_reset_ms"))
+            reset_ms = params.get("hue_reset_ms")[0];
 
     }
 
@@ -60,11 +63,13 @@ public class HueRecipient extends AbstractNotificationRecipient {
         {
             int secondIdx = configurationData.indexOf('|', firstIdx + 1);
             int thirdIdx = configurationData.indexOf('|', secondIdx + 1);
+            int forthIdx = configurationData.indexOf('|', thirdIdx + 1);
 
             host = configurationData.substring(0, firstIdx);
             port = configurationData.substring(firstIdx + 1, secondIdx);
             username = configurationData.substring(secondIdx + 1, thirdIdx);
-            bulps = configurationData.substring(thirdIdx + 1);
+            bulps = configurationData.substring(thirdIdx + 1,forthIdx);
+            reset_ms = configurationData.substring(forthIdx + 1);
         }
     }
 
@@ -76,7 +81,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public String getRecipientConfig()
     {
-        return host + '|' + port + '|' + username + '|' + bulps;
+        return host + '|' + port + '|' + username + '|' + bulps + '|' + reset_ms;
     }
 
     /*
@@ -96,6 +101,8 @@ public class HueRecipient extends AbstractNotificationRecipient {
             context.put("hue_username", this.username);
         if (this.bulps != null)
             context.put("hue_ids", this.bulps);
+        if (this.reset_ms != null)
+            context.put("hue_reset_ms", this.reset_ms);
 
         return templateRenderer.render("editHue.ftl", context);
     }
@@ -107,7 +114,12 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public String getViewHtml()
     {
-        return "Hue configuration:<br/>Host: " + this.host + "<br/>Port: " + this.port + "<br/>API username: " + this.username + "<br/>Bulps: " + this.bulps;
+        return "Hue configuration:"
+                + "<br/>Host: " + this.host
+                + "<br/>Port: " + this.port
+                + "<br/>API username: " + this.username
+                + "<br/>Bulps: " + this.bulps
+                + "<br/>Reset time: " + this.reset_ms;
     }
 
 
@@ -119,7 +131,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     public List<NotificationTransport> getTransports()
     {
         ArrayList list = new ArrayList();
-        list.add(new HueNotificationTransport(host, port, username, bulps, resultsSummaryManager, administrationConfigurationManager));
+        list.add(new HueNotificationTransport(host, port, username, bulps, reset_ms,  resultsSummaryManager, administrationConfigurationManager));
         return list;
     }
 

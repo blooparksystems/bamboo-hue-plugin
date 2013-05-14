@@ -21,3 +21,9 @@
 [#else]
     [@ww.textfield labelKey="hue.ids" name="hue_ids" value="1,2,3,4" required='true'/]
 [/#if]
+
+[#if hue_reset_ms?has_content]
+    [@ww.textfield labelKey="hue.reset_ms" name="hue_reset_ms" value='${hue_reset_ms}' required='true'/]
+[#else]
+    [@ww.textfield labelKey="hue.reset_ms" name="hue_reset_ms" value="5000" required='true'/]
+[/#if]

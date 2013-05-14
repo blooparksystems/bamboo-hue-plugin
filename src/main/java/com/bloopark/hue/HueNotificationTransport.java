@@ -7,19 +7,18 @@ import com.atlassian.bamboo.notification.Notification;
 import com.atlassian.bamboo.notification.NotificationTransport;
 import com.atlassian.bamboo.resultsummary.ResultsSummary;
 import com.atlassian.bamboo.resultsummary.ResultsSummaryManager;
-import com.atlassian.bamboo.user.gravatar.GravatarService;
 import com.atlassian.event.Event;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import javax.annotation.Nonnull;
-import java.net.*;
-import java.io.*;
 import java.io.IOException;
+import java.util.ArrayList;
+
+
 /**
  * Created with IntelliJ IDEA.
  * User: cheimke
@@ -34,29 +33,34 @@ public class HueNotificationTransport implements NotificationTransport {
     private String username;
     private String port;
     private String bulps;
+    private int reset_ms;
     private ResultsSummaryManager resultsSummaryManager;
     private AdministrationConfigurationManager administrationConfigurationManager;
     private HttpClient client;
+    private ArrayList<String> bulpStates;
 
     /*
 
         Descriptor of the new class
 
      */
-    public HueNotificationTransport(String host, String port, String username, String bulps, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
+    public HueNotificationTransport(String host, String port, String username, String bulps, String reset_ms, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
     {
         this.host = host;
         this.port = port;
         this.username = username;
         this.bulps = bulps;
+        this.reset_ms = Integer.parseInt(reset_ms);
         this.resultsSummaryManager = resultsSummaryManager;
         this.administrationConfigurationManager = administrationConfigurationManager;
         this.client = new HttpClient();
+        this.bulpStates = new ArrayList<String>();
     }
 
     /*
-
-        send notifcation method overwritten. We will just need the build summery events of SUC and FAI and send via put the light codes
+    *
+    *   send notifcation method overwritten. We will just need the build summery events of SUC and FAI and send via put the light codes
+    *
      */
     @Override
     public void sendNotification(@NotNull Notification notification)
@@ -65,7 +69,7 @@ public class HueNotificationTransport implements NotificationTransport {
 
 
         System.out.println("#####" + event);
-        PutMethod method = null;
+
 
         if (event instanceof ChainResultEvent)
         {
@@ -78,23 +82,79 @@ public class HueNotificationTransport implements NotificationTransport {
             else if  (result.getBuildState() == BuildState.SUCCESS)
                 color = "green";
 
-            try
-            {
-                String[] bulp = this.bulps.split(",");
 
-                for(int i=0;i<bulp.length;i++){
-                    method = setupPutMethod(color, bulp[i]);
-                    client.executeMethod(method);
+
+            String[] bulp = this.bulps.split(",");
+
+            for(int i=0;i<bulp.length;i++){
+
+                getBulpState(i,bulp[i]);
+
+                String json = getJsonFromColor(color);
+                setBulpState(bulp[i], json);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
+                setBulpState(bulp[i],this.bulpStates.get(i));
 
-            } catch (IOException e)
-            {
-                log.error("Error using Hue API: " + e.getMessage(), e);
             }
 
         }
     }
 
+    /*
+    *
+    * create json by color
+    *
+     */
+    private String getJsonFromColor(String color) {
+        if(color == "green"){
+            return "{\"on\":true, \"hue\": 25500}";
+
+        }else{
+            return "{\"on\":true,\"hue\": 0, \"alert\": \"lselect\"}";
+        }
+
+    }
+
+    /*
+    *
+    * set the bulp state via json
+    *
+     */
+    private void setBulpState(String bulp_id, String json) {
+
+         String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights/"+bulp_id+"/state";
+
+         try{
+            StringRequestEntity requestEntity = new StringRequestEntity(
+                    json,
+                    "application/json",
+                    "UTF-8");
+
+
+            PutMethod m = new PutMethod(url);
+            m.setRequestEntity(requestEntity);
+
+            client.executeMethod(m);
+
+        }catch (java.io.UnsupportedEncodingException e){} catch (HttpException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+    /*
+    *
+    * add the config window to bamboo
+    *
+     */
 
     private ResultsSummary getResultSummary(Event event)
     {
@@ -108,35 +168,30 @@ public class HueNotificationTransport implements NotificationTransport {
     }
 
 
+
     /*
-        PUT the JSON stuff to the API
+    *
+    * get the current bulp state and save it in an arraylist with the bulp_id as index
+    *
      */
-    private PutMethod setupPutMethod(String color, String bulp_id){
+    private void getBulpState(int idx, String bulp_id){
 
-        String JSON = "";
-        String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights/"+bulp_id+"/state";
+        String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights/"+bulp_id;
+        GetMethod get = new GetMethod(url);
 
-        if(color == "green"){
-            JSON = "{\"on\":true, \"hue\": 25500}";
+        try {
+            client.executeMethod(get);
+            String response = get.getResponseBodyAsString();
 
-        }else{
-            JSON = "{\"on\":true,\"hue\": 0, \"alert\": \"lselect\"}";
+            JSONObject jsonObject = new JSONObject( response );
+            JSONObject state = jsonObject.getJSONObject("state");
+
+            this.bulpStates.add(idx, state.toString());
+
+            get.releaseConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        try{
-            StringRequestEntity requestEntity = new StringRequestEntity(
-                    JSON,
-                    "application/json",
-                    "UTF-8");
-
-
-              PutMethod m = new PutMethod(url);
-            m.setRequestEntity(requestEntity);
-            return m;
-
-        }catch (java.io.UnsupportedEncodingException e){}
-
-        return null;
 
     }
-
 }
