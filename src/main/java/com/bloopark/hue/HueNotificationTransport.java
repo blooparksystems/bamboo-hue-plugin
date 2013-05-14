@@ -38,13 +38,15 @@ public class HueNotificationTransport implements NotificationTransport {
     private AdministrationConfigurationManager administrationConfigurationManager;
     private HttpClient client;
     private ArrayList<String> bulpStates;
+    private String color_success;
+    private String color_failure;
 
     /*
 
         Descriptor of the new class
 
      */
-    public HueNotificationTransport(String host, String port, String username, String bulps, String reset_ms, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
+    public HueNotificationTransport(String host, String port, String username, String bulps, String reset_ms, String color_success, String color_failure, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
     {
         this.host = host;
         this.port = port;
@@ -55,6 +57,8 @@ public class HueNotificationTransport implements NotificationTransport {
         this.administrationConfigurationManager = administrationConfigurationManager;
         this.client = new HttpClient();
         this.bulpStates = new ArrayList<String>();
+        this.color_success = color_success;
+        this.color_failure = color_failure;
     }
 
     /*
@@ -68,21 +72,16 @@ public class HueNotificationTransport implements NotificationTransport {
         Event event = notification.getEvent();
 
 
-        System.out.println("#####" + event);
-
-
         if (event instanceof ChainResultEvent)
         {
             ResultsSummary result = getResultSummary(event);
 
-            String color = "unknown";
+            String color = "";
 
             if (result.getBuildState() == BuildState.FAILED)
-                color = "red";
+                color = this.color_failure;
             else if  (result.getBuildState() == BuildState.SUCCESS)
-                color = "green";
-
-
+                color = this.color_success;
 
             String[] bulp = this.bulps.split(",");
 
@@ -110,12 +109,21 @@ public class HueNotificationTransport implements NotificationTransport {
     *
      */
     private String getJsonFromColor(String color) {
-        if(color == "green"){
-            return "{\"on\":true, \"hue\": 25500}";
 
-        }else{
-            return "{\"on\":true,\"hue\": 0, \"alert\": \"lselect\"}";
-        }
+
+        if(color == "green")
+                return "{\"on\":true, \"hue\": 25500}";
+        if(color == "red")
+                return "{\"on\":true,\"hue\": 0}";
+        if(color == "orange")
+                return "{\"on\":true,\"hue\": 0}";
+        if(color == "yellow")
+                return "{\"on\":true,\"hue\": 0}";
+        if(color == "blue")
+                return "{\"on\":true,\"hue\": 46920}";
+
+
+        return "{\"on\":true}";
 
     }
 
@@ -126,6 +134,7 @@ public class HueNotificationTransport implements NotificationTransport {
      */
     private void setBulpState(String bulp_id, String json) {
 
+        System.out.println(json);
          String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights/"+bulp_id+"/state";
 
          try{
