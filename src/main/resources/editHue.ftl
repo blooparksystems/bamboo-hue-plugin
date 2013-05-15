@@ -22,11 +22,20 @@
     [@ww.textfield labelKey="hue.ids" name="hue_ids" value="1,2,3,4" required='true'/]
 [/#if]
 
+
+<div id="fieldArea_notification_hue_reset" class="field-group required">
+    <label for="notification_hue_reset" id="fieldLabelArea_notification_hue_reset">&nbsp;</label>
+    <input type="checkbox" value="true" name="hue_reset" [#if hue_reset = "true"] checked[/#if] />  Reset Color to previous state after x ms
+</div>
+
+
 [#if hue_reset_ms?has_content]
     [@ww.textfield labelKey="hue.reset_ms" name="hue_reset_ms" value='${hue_reset_ms}' required='true'/]
 [#else]
     [@ww.textfield labelKey="hue.reset_ms" name="hue_reset_ms" value="5000" required='true'/]
 [/#if]
+
+
 
 <div id="fieldArea_notification_hue_color_success" class="field-group required">
     <label for="notification_hue_color_success" id="fieldLabelArea_notification_hue_color_success">Color on success</label>
