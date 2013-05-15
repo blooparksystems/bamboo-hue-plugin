@@ -26,6 +26,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     private String reset_ms     = null;
     private String color_success = null;
     private String color_failure = null;
+    private boolean reset        = false;
 
     private TemplateRenderer templateRenderer;
     private ResultsSummaryManager resultsSummaryManager;
@@ -42,6 +43,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
             String next = iterator.next();
         }
 
+
         if (params.containsKey("hue_host"))
             host = params.get("hue_host")[0];
         if (params.containsKey("hue_port"))
@@ -50,6 +52,10 @@ public class HueRecipient extends AbstractNotificationRecipient {
             username = params.get("hue_username")[0];
         if (params.containsKey("hue_ids"))
             bulps = params.get("hue_ids")[0];
+        if (params.containsKey("hue_reset")) {
+            if(params.get("hue_reset")[0].equals("true"))
+                reset = true;
+        }
         if (params.containsKey("hue_reset_ms"))
             reset_ms = params.get("hue_reset_ms")[0];
         if (params.containsKey("hue_color_success"))
@@ -65,18 +71,25 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public void init(@Nullable String configurationData)
     {
+
         int firstIdx = configurationData.indexOf(',');
         if (firstIdx > 0)
         {
             String conf[]   = configurationData.split(",");
 
+            System.out.println("############## " + conf[4]);
+
             this.host       = conf[0];
             this.port       = conf[1];
             this.username   = conf[2];
             this.bulps      = conf[3];
-            this.reset_ms   = conf[4];
-            this.color_success = conf[5];
-            this.color_failure = conf[6];
+
+            if(conf[4].equals("true"))
+                this.reset = true;
+
+            this.reset_ms   = conf[5];
+            this.color_success = conf[6];
+            this.color_failure = conf[7];
         }
     }
 
@@ -88,7 +101,12 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public String getRecipientConfig()
     {
-        return host + ',' + port + ',' + username + ',' + bulps + ',' + reset_ms + ',' + color_success + ',' + color_failure;
+
+        String reset_str = "false";
+        if(reset){
+            reset_str = "true";
+        }
+        return host + ',' + port + ',' + username + ',' + bulps + ',' + reset_str + ',' + reset_ms + ',' + color_success + ',' + color_failure;
     }
 
     /*
@@ -123,6 +141,10 @@ public class HueRecipient extends AbstractNotificationRecipient {
             context.put("hue_color_failure", this.color_failure);
         }
 
+        if(this.reset){
+            context.put("hue_reset","true");
+        }
+
 
         return templateRenderer.render("editHue.ftl", context);
     }
@@ -134,12 +156,18 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public String getViewHtml()
     {
+        String reset_str = "";
+
+        if(reset){
+            reset_str = "<br/>Reset time: " + this.reset_ms;
+        }
+
         return "Hue configuration:"
                 + "<br/>Host: " + this.host
                 + "<br/>Port: " + this.port
                 + "<br/>API username: " + this.username
                 + "<br/>Bulps: " + this.bulps
-                + "<br/>Reset time: " + this.reset_ms
+                + reset_str
                 + "<br/>Color success: " + this.color_success
                 + "<br/>Color failure: " + this.color_failure;
     }
@@ -154,7 +182,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     {
         ArrayList list = new ArrayList();
 
-        list.add(new HueNotificationTransport(host, port, username, bulps, reset_ms, color_success, color_failure, resultsSummaryManager, administrationConfigurationManager));
+        list.add(new HueNotificationTransport(host, port, username, bulps, reset, reset_ms, color_success, color_failure, resultsSummaryManager, administrationConfigurationManager));
         return list;
     }
 

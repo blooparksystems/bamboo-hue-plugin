@@ -33,13 +33,14 @@ public class HueNotificationTransport implements NotificationTransport {
     private AdministrationConfigurationManager administrationConfigurationManager;
     private String color_success;
     private String color_failure;
+    private boolean reset = false;
 
     /*
 
         Descriptor of the new class
 
      */
-    public HueNotificationTransport(String host, String port, String username, String bulps, String reset_ms, String color_success, String color_failure, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
+    public HueNotificationTransport(String host, String port, String username, String bulps, boolean reset, String reset_ms, String color_success, String color_failure, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
     {
         this.host = host;
         this.port = port;
@@ -50,6 +51,7 @@ public class HueNotificationTransport implements NotificationTransport {
         this.administrationConfigurationManager = administrationConfigurationManager;
         this.color_success = color_success;
         this.color_failure = color_failure;
+        this.reset = reset;
     }
 
     /*
@@ -78,7 +80,7 @@ public class HueNotificationTransport implements NotificationTransport {
 
             for(int i=0;i<bulp.length;i++){
                 String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights/"+bulp[i];
-                HueSetColor hsc = new HueSetColor(url,color,bulp[i],true,reset_ms);
+                HueSetColor hsc = new HueSetColor(url,color,bulp[i],this.reset,this.reset_ms);
                 hsc.start();
             }
 
