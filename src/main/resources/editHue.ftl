@@ -1,27 +1,12 @@
-[#if hue_ids?has_content]
-    [@ww.textfield labelKey="hue.ids" name="hue_ids" value='${hue_ids}' required='true'/]
-[#else]
-    [@ww.textfield labelKey="hue.ids" name="hue_ids" value="1,2,3,4" required='true'/]
-[/#if]
+<div id="fieldArea_notification_hue_bulp" class="field-group required">
+    <label for="notification_hue_bulp" id="fieldLabelArea_notification_hue_bulp">Bulp</label>
+    <select id="hue_bulp" name="hue_bulp">
+    [#list bulps as bulp]
+        <option value="${bulp.id}"> ${bulp.name} </option>
+    [/#list]
+    </select>
 
-
-
-<div id="fieldArea_notification_hue_reset" class="field-group required">
-    <label for="notification_hue_reset" id="fieldLabelArea_notification_hue_reset">&nbsp;</label>
-[#if hue_reset?has_content]
-    <input type="checkbox" value="true" name="hue_reset" [#if hue_reset = "true"] checked[/#if]  />  Reset Color to previous state after x ms
-[#else]
-    <input type="checkbox" value="true" name="hue_reset" checked />  Reset Color to previous state after x ms
-[/#if]
 </div>
-
-
-[#if hue_reset_ms?has_content]
-    [@ww.textfield labelKey="hue.reset_ms" name="hue_reset_ms" value='${hue_reset_ms}' required='true'/]
-[#else]
-    [@ww.textfield labelKey="hue.reset_ms" name="hue_reset_ms" value="5000" required='true'/]
-[/#if]
-
 
 <div id="fieldArea_notification_hue_state" class="field-group required">
     <label for="notification_hue_state" id="fieldLabelArea_notification_hue_state">Event</label>
@@ -43,6 +28,24 @@
 
     </select>
 </div>
+
+<div id="fieldArea_notification_hue_reset" class="field-group required">
+    <label for="notification_hue_reset" id="fieldLabelArea_notification_hue_reset">&nbsp;</label>
+[#if hue_reset?has_content]
+    <input type="checkbox" value="true" name="hue_reset" [#if hue_reset = "true"] checked[/#if]  />  Reset Color to previous state after x ms
+[#else]
+    <input type="checkbox" value="true" name="hue_reset" checked />  Reset Color to previous state after x ms
+[/#if]
+</div>
+
+
+[#if hue_reset_ms?has_content]
+    [@ww.textfield labelKey="hue.reset_ms" name="hue_reset_ms" value='${hue_reset_ms}' required='true'/]
+[#else]
+    [@ww.textfield labelKey="hue.reset_ms" name="hue_reset_ms" value="5000" required='true'/]
+[/#if]
+
+
 
 
 
