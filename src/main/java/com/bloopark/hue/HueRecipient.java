@@ -47,13 +47,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
             String next = iterator.next();
         }
 
-        if (params.containsKey("hue_host"))
-            host = params.get("hue_host")[0];
-        if (params.containsKey("hue_port"))
-            port = params.get("hue_port")[0];
-        if (params.containsKey("hue_username"))
-            username = params.get("hue_username")[0];
-        if (params.containsKey("hue_ids"))
+           if (params.containsKey("hue_ids"))
             bulps = params.get("hue_ids")[0];
         if (params.containsKey("hue_reset")) {
             if(params.get("hue_reset")[0].equals("true"))
@@ -74,25 +68,27 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public void init(@Nullable String configurationData)
     {
+        // getting the setting from Admin Backend
+        final AdministrationConfiguration administrationConfiguration = ADMINISTRATION_CONFIGURATION_MANAGER.get().getAdministrationConfiguration();
 
-        int firstIdx = configurationData.indexOf(',');
+        host = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_HOST);
+        port = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_PORT);
+        username = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_USER);
+
+
+        int firstIdx = configurationData.indexOf(';');
         if (firstIdx > 0)
         {
-            String conf[]   = configurationData.split(",");
+            String conf[]   = configurationData.split(";");
 
-            System.out.println("############## " + conf[4]);
+            this.bulps      = conf[0];
 
-            this.host       = conf[0];
-            this.port       = conf[1];
-            this.username   = conf[2];
-            this.bulps      = conf[3];
-
-            if(conf[4].equals("true"))
+            if(conf[1].equals("true"))
                 this.reset = true;
 
-            this.reset_ms   = conf[5];
-            this.color_success = conf[6];
-            this.color_failure = conf[7];
+            this.reset_ms   = conf[2];
+            this.color_success = conf[3];
+            this.color_failure = conf[4];
 
         }
     }
@@ -110,7 +106,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
         if(reset){
             reset_str = "true";
         }
-        return host + ',' + port + ',' + username + ',' + bulps + ',' + reset_str + ',' + reset_ms + ',' + color_success + ',' + color_failure;
+        return bulps + ';' + reset_str + ';' + reset_ms + ';' + color_success + ';' + color_failure;
     }
 
     /*
@@ -121,12 +117,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     public String getEditHtml()
     {
         Map context = new HashMap();
-        if (this.host != null)
-            context.put("hue_host", this.host);
-        if (this.port != null)
-            context.put("hue_port", this.port);
-        if (this.username != null)
-            context.put("hue_username", this.username);
+
         if (this.bulps != null)
             context.put("hue_ids", this.bulps);
         if (this.reset_ms != null)
@@ -166,9 +157,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
         }
 
         return "Hue configuration:"
-                + "<br/>Host: " + this.host
-                + "<br/>Port: " + this.port
-                + "<br/>API username: " + this.username
                 + "<br/>Bulps: " + this.bulps
                 + reset_str
                 + "<br/>Color success: " + this.color_success
