@@ -1,10 +1,13 @@
 package com.bloopark.hue;
 
+import com.atlassian.bamboo.configuration.AdministrationConfiguration;
 import com.atlassian.bamboo.configuration.AdministrationConfigurationManager;
+import com.atlassian.bamboo.spring.ComponentAccessor;
 import com.atlassian.bamboo.notification.NotificationTransport;
 import com.atlassian.bamboo.notification.recipients.AbstractNotificationRecipient;
 import com.atlassian.bamboo.resultsummary.ResultsSummaryManager;
 import com.atlassian.bamboo.template.TemplateRenderer;
+import com.google.common.base.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,6 +31,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     private ResultsSummaryManager resultsSummaryManager;
     private AdministrationConfigurationManager administrationConfigurationManager;
 
+    public static final Supplier<AdministrationConfigurationManager> ADMINISTRATION_CONFIGURATION_MANAGER = ComponentAccessor.newLazyComponentReference("administrationConfigurationManager");
     /*
         this is need to save the reuse the settings
      */
@@ -39,12 +43,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
             String next = iterator.next();
         }
 
-        if (params.containsKey("hue_host"))
-            host = params.get("hue_host")[0];
-        if (params.containsKey("hue_port"))
-            port = params.get("hue_port")[0];
-        if (params.containsKey("hue_username"))
-            username = params.get("hue_username")[0];
         if (params.containsKey("hue_ids"))
             bulps = params.get("hue_ids")[0];
         if (params.containsKey("hue_reset_ms"))
@@ -58,17 +56,21 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public void init(@Nullable String configurationData)
     {
+
+        final AdministrationConfiguration administrationConfiguration = ADMINISTRATION_CONFIGURATION_MANAGER.get().getAdministrationConfiguration();
+
+        host = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_HOST);
+        port = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_PORT);
+        username = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_USER);
+
+        this.host = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_HOST);
+
         int firstIdx = configurationData.indexOf('|');
         if (firstIdx > 0)
         {
             int secondIdx = configurationData.indexOf('|', firstIdx + 1);
-            int thirdIdx = configurationData.indexOf('|', secondIdx + 1);
-            int forthIdx = configurationData.indexOf('|', thirdIdx + 1);
 
-            host = configurationData.substring(0, firstIdx);
-            port = configurationData.substring(firstIdx + 1, secondIdx);
-            username = configurationData.substring(secondIdx + 1, thirdIdx);
-            bulps = configurationData.substring(thirdIdx + 1,forthIdx);
+            bulps = configurationData.substring(firstIdx);
             reset_ms = configurationData.substring(forthIdx + 1);
         }
     }
@@ -91,7 +93,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public String getEditHtml()
     {
-
         Map context = new HashMap();
         if (this.host != null)
             context.put("hue_host", this.host);
