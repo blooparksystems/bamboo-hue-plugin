@@ -20,4 +20,9 @@ public class Constants {
     public static final String BLOOPARK_HUE_PORT_FIELD = "blooparkHuePort";
     public static final String BLOOPARK_HUE_USER_FIELD = "blooparkHueUser";
 
+    // Build states
+    public static final String BLOOPARK_STATE_SUCCESS   = "success";
+    public static final String BLOOPARK_STATE_FAILED    = "fail";
+    public static final String BLOOPARK_STATE_UNKNOWN   = "unknown";
+
 }
