@@ -1,11 +1,14 @@
 package com.bloopark.hue;
 
+import com.atlassian.bamboo.configuration.AdministrationConfiguration;
 import com.atlassian.bamboo.configuration.AdministrationConfigurationManager;
+import com.atlassian.bamboo.spring.ComponentAccessor;
 import com.atlassian.bamboo.notification.NotificationTransport;
 import com.atlassian.bamboo.notification.recipients.AbstractNotificationRecipient;
 import com.atlassian.bamboo.resultsummary.ResultsSummaryManager;
 import com.atlassian.bamboo.template.TemplateRenderer;
-import com.google.common.collect.Maps;
+import com.google.common.base.Supplier;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +35,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     private ResultsSummaryManager resultsSummaryManager;
     private AdministrationConfigurationManager administrationConfigurationManager;
 
+    public static final Supplier<AdministrationConfigurationManager> ADMINISTRATION_CONFIGURATION_MANAGER = ComponentAccessor.newLazyComponentReference("administrationConfigurationManager");
     /*
         this is need to save the reuse the settings
      */
@@ -42,7 +46,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
         {
             String next = iterator.next();
         }
-
 
         if (params.containsKey("hue_host"))
             host = params.get("hue_host")[0];
@@ -90,6 +93,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
             this.reset_ms   = conf[5];
             this.color_success = conf[6];
             this.color_failure = conf[7];
+
         }
     }
 
@@ -116,7 +120,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public String getEditHtml()
     {
-
         Map context = new HashMap();
         if (this.host != null)
             context.put("hue_host", this.host);

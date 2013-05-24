@@ -5,6 +5,7 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
         <param name="plugin-icon">images/pluginIcon.png</param>
         <param name="plugin-logo">images/pluginLogo.png</param>
+        <param name="configure.url">/admin/plugins/hue/configuration</param>
     </plugin-info>
 
     <!-- add our i18n resource -->
@@ -19,7 +20,20 @@
         <context>hue</context>
     </web-resource>
 
+    <web-item key="bloopark_hue_key" name="Configure Hue" section="system.admin/plugins">
+        <label key="Configure Hue" />
+        <link linkId="configureHue">/admin/configureHue!default.action</link>
+    </web-item>
 
+    <xwork key="hueAdmin" name="Configure bloopark hue">
+        <package name="configureHueAdmin" extends="admin">
+            <action name="configureHue" class="com.bloopark.hue.HueConfigurationAction">
+                <result name="input" type="freemarker">/admin/configureHuePlugin.ftl</result>
+                <result name="success" type="freemarker">/admin/configureHuePlugin.ftl</result>
+                <result name="error" type="freemarker">/admin/error.ftl</result>
+            </action>
+        </package>
+    </xwork>
 
     <!-- publish our component -->
     <component key="myPluginComponent" class="com.bloopark.hue.MyPluginComponentImpl" public="true">
