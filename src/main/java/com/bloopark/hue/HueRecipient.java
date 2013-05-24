@@ -26,10 +26,10 @@ public class HueRecipient extends AbstractNotificationRecipient {
     private String port         = null;
     private String username     = null;
     private String bulps        = null;
+    private String state        = null;
     private String reset_ms     = null;
-    private String color_success = null;
-    private String color_failure = null;
-    private boolean reset        = false;
+    private String color        = null;
+    private boolean reset       = false;
 
     private TemplateRenderer templateRenderer;
     private ResultsSummaryManager resultsSummaryManager;
@@ -55,10 +55,10 @@ public class HueRecipient extends AbstractNotificationRecipient {
         }
         if (params.containsKey("hue_reset_ms"))
             reset_ms = params.get("hue_reset_ms")[0];
-        if (params.containsKey("hue_color_success"))
-            color_success = params.get("hue_color_success")[0];
-        if (params.containsKey("hue_color_failure"))
-            color_failure = params.get("hue_color_failure")[0];
+        if (params.containsKey("hue_color"))
+            color = params.get("hue_color")[0];
+        if (params.containsKey("hue_state"))
+            state = params.get("hue_state")[0];
 
     }
 
@@ -75,7 +75,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
         port = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_PORT);
         username = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_USER);
 
-
         int firstIdx = configurationData.indexOf(';');
         if (firstIdx > 0)
         {
@@ -87,8 +86,8 @@ public class HueRecipient extends AbstractNotificationRecipient {
                 this.reset = true;
 
             this.reset_ms   = conf[2];
-            this.color_success = conf[3];
-            this.color_failure = conf[4];
+            this.color      = conf[3];
+            this.state      = conf[4];
 
         }
     }
@@ -106,7 +105,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
         if(reset){
             reset_str = "true";
         }
-        return bulps + ';' + reset_str + ';' + reset_ms + ';' + color_success + ';' + color_failure;
+        return bulps + ';' + reset_str + ';' + reset_ms + ';' + color + ';' + state;
     }
 
     /*
@@ -123,16 +122,16 @@ public class HueRecipient extends AbstractNotificationRecipient {
         if (this.reset_ms != null)
             context.put("hue_reset_ms", this.reset_ms);
 
-        if(this.color_success == null){
-            context.put("hue_color_success", "green");
+        if(this.color == null){
+            context.put("hue_color", "green");
         }else{
-            context.put("hue_color_success", this.color_success);
+            context.put("hue_color", this.color);
         }
 
-        if(this.color_failure == null){
-            context.put("hue_color_failure", "red");
+        if(this.state == null){
+            context.put("hue_state", "successfull");
         }else{
-            context.put("hue_color_failure", this.color_failure);
+            context.put("hue_state", this.state);
         }
 
         if(this.reset){
@@ -156,11 +155,11 @@ public class HueRecipient extends AbstractNotificationRecipient {
             reset_str = "<br/>Reset time: " + this.reset_ms;
         }
 
-        return "Hue configuration:"
-                + "<br/>Bulps: " + this.bulps
+        return "<b>Hue</b>"
+                + "<br/>Bulp: " + this.bulps
                 + reset_str
-                + "<br/>Color success: " + this.color_success
-                + "<br/>Color failure: " + this.color_failure;
+                + "<br/>Color: " + this.color
+                + "<br/>State: " + this.state;
     }
 
 
@@ -173,7 +172,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     {
         ArrayList list = new ArrayList();
 
-        list.add(new HueNotificationTransport(host, port, username, bulps, reset, reset_ms, color_success, color_failure, resultsSummaryManager, administrationConfigurationManager));
+        list.add(new HueNotificationTransport(host, port, username, bulps, reset, reset_ms, color, state, resultsSummaryManager, administrationConfigurationManager));
         return list;
     }
 

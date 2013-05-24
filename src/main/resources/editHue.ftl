@@ -5,9 +5,14 @@
 [/#if]
 
 
+
 <div id="fieldArea_notification_hue_reset" class="field-group required">
     <label for="notification_hue_reset" id="fieldLabelArea_notification_hue_reset">&nbsp;</label>
-    <input type="checkbox" value="true" name="hue_reset" [#if hue_reset = "true"] checked[/#if] />  Reset Color to previous state after x ms
+[#if hue_reset?has_content]
+    <input type="checkbox" value="true" name="hue_reset" [#if hue_reset = "true"] checked[/#if]  />  Reset Color to previous state after x ms
+[#else]
+    <input type="checkbox" value="true" name="hue_reset" checked />  Reset Color to previous state after x ms
+[/#if]
 </div>
 
 
@@ -18,29 +23,26 @@
 [/#if]
 
 
+<div id="fieldArea_notification_hue_state" class="field-group required">
+    <label for="notification_hue_state" id="fieldLabelArea_notification_hue_state">Event</label>
+    <select name="hue_state" size="1">
+        <option [#if hue_state = "success"] selected[/#if]> success</option>
+        <option [#if hue_state = "fail"] selected[/#if]> fail</option>
+        <option [#if hue_state = "unknown"] selected[/#if]> unknown</option>
+    </select>
+</div>
 
-<div id="fieldArea_notification_hue_color_success" class="field-group required">
-    <label for="notification_hue_color_success" id="fieldLabelArea_notification_hue_color_success">Color on success</label>
-    <select name="hue_color_success" size="1">
-        <option [#if hue_color_success = "blue"] selected[/#if]> blue</option>
-        <option [#if hue_color_success = "green"] selected[/#if]> green</option>
-        <option [#if hue_color_success = "orange"] selected[/#if]> orange</option>
-        <option [#if hue_color_success = "red"] selected[/#if]> red</option>
-        <option [#if hue_color_success = "yellow"] selected[/#if]> yellow</option>
+<div id="fieldArea_notification_hue_color" class="field-group required">
+    <label for="notification_hue_color" id="fieldLabelArea_notification_hue_color">Color</label>
+    <select name="hue_color" size="1">
+        <option [#if hue_color = "blue"] selected[/#if]> blue</option>
+        <option [#if hue_color = "green"] selected[/#if]> green</option>
+        <option [#if hue_color = "orange"] selected[/#if]> orange</option>
+        <option [#if hue_color = "red"] selected[/#if]> red</option>
+        <option [#if hue_color = "yellow"] selected[/#if]> yellow</option>
 
     </select>
 </div>
 
-<div id="fieldArea_notification_hue_color_fail" class="field-group required">
-    <label for="notification_hue_color_fail" id="fieldLabelArea_notification_hue_color_fail">Color on failure</label>
-    <select name="hue_color_failure" size="1">
-        <option [#if hue_color_failure = "blue"] selected[/#if]> blue</option>
-        <option [#if hue_color_failure = "green"] selected[/#if]> green</option>
-        <option [#if hue_color_failure = "orange"] selected[/#if]> orange</option>
-        <option [#if hue_color_failure = "red"] selected[/#if]> red</option>
-        <option [#if hue_color_failure = "yellow"] selected[/#if]> yellow</option>
-
-    </select>
-</div>
 
 

@@ -31,8 +31,8 @@ public class HueNotificationTransport implements NotificationTransport {
     private int reset_ms;
     private ResultsSummaryManager resultsSummaryManager;
     private AdministrationConfigurationManager administrationConfigurationManager;
-    private String color_success;
-    private String color_failure;
+    private String color;
+    private String state;
     private boolean reset = false;
 
     /*
@@ -40,7 +40,7 @@ public class HueNotificationTransport implements NotificationTransport {
         Descriptor of the new class
 
      */
-    public HueNotificationTransport(String host, String port, String username, String bulps, boolean reset, String reset_ms, String color_success, String color_failure, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
+    public HueNotificationTransport(String host, String port, String username, String bulps, boolean reset, String reset_ms, String color, String state, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
     {
         this.host = host;
         this.port = port;
@@ -49,8 +49,8 @@ public class HueNotificationTransport implements NotificationTransport {
         this.reset_ms = Integer.parseInt(reset_ms);
         this.resultsSummaryManager = resultsSummaryManager;
         this.administrationConfigurationManager = administrationConfigurationManager;
-        this.color_success = color_success;
-        this.color_failure = color_failure;
+        this.color = color;
+        this.state = state;
         this.reset = reset;
     }
 
@@ -71,10 +71,13 @@ public class HueNotificationTransport implements NotificationTransport {
 
             String color = "";
 
-            if (result.getBuildState() == BuildState.FAILED)
-                color = this.color_failure;
-            else if  (result.getBuildState() == BuildState.SUCCESS)
-                color = this.color_success;
+            if((result.getBuildState() == BuildState.FAILED) && (this.state == Constants.BLOOPARK_STATE_FAILED)){
+                color = this.color;
+            }else if ((result.getBuildState() == BuildState.SUCCESS) && (this.state == Constants.BLOOPARK_STATE_SUCCESS)){
+                color = this.color;
+            }else{
+                color = this.color;
+            }
 
             String[] bulp = this.bulps.split(",");
 
