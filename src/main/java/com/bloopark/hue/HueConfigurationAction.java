@@ -13,8 +13,9 @@ public class HueConfigurationAction extends BambooActionSupport {
     private String blooparkHuePort;
     private String blooparkHueUser;
 
+    /*
 
-
+    ******************************************************************************************************************/
     public void validate() {
         super.validate();
 
@@ -31,7 +32,9 @@ public class HueConfigurationAction extends BambooActionSupport {
         }
     }
 
+    /*
 
+    ******************************************************************************************************************/
     public String doDefault() {
         AdministrationConfiguration administrationConfiguration = getAdministrationConfiguration();
         if(administrationConfiguration == null) {
@@ -65,6 +68,9 @@ public class HueConfigurationAction extends BambooActionSupport {
         return "input";
     }
 
+    /*
+
+    ******************************************************************************************************************/
     public String doExecute() {
 
         AdministrationConfiguration administrationConfiguration = getAdministrationConfiguration();
@@ -87,26 +93,44 @@ public class HueConfigurationAction extends BambooActionSupport {
         return "success";
     }
 
+    /*
+
+    ******************************************************************************************************************/
     public void setBlooparkHueHost(String blooparkHueHost) {
         this.blooparkHueHost = blooparkHueHost;
     }
 
+    /*
+
+    ******************************************************************************************************************/
     public String getBlooparkHueHost() {
         return blooparkHueHost;
     }
 
+    /*
+
+    ******************************************************************************************************************/
     public void setBlooparkHuePort(String blooparkHuePort) {
         this.blooparkHuePort = blooparkHuePort;
     }
 
+    /*
+
+    ******************************************************************************************************************/
     public String getBlooparkHuePort() {
         return blooparkHuePort;
     }
 
+    /*
+
+    ******************************************************************************************************************/
     public void setBlooparkHueUser(String blooparkHueUser) {
         this.blooparkHueUser = blooparkHueUser;
     }
 
+    /*
+
+    ******************************************************************************************************************/
     public String getBlooparkHueUser() {
         return blooparkHueUser;
     }

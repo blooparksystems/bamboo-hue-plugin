@@ -22,7 +22,7 @@ public class HueSetColor extends Thread {
     /*
     *
     * Contructor for setting all data we need
-     */
+    ******************************************************************************************************************/
     public HueSetColor(String url, String color, String bulpID, boolean reset, int reset_time){
         this.url            = url;
         this.color          = color;
@@ -40,7 +40,7 @@ public class HueSetColor extends Thread {
     /*
     *
     * run the thread
-     */
+     ******************************************************************************************************************/
     public void run() {
 
         this.setBulpState(this.target_state);
@@ -61,7 +61,7 @@ public class HueSetColor extends Thread {
     *
     * set the bulp state via json
     *
-    */
+    ******************************************************************************************************************/
     private void setBulpState(String json) {
 
         String url_state = url + "/state";
@@ -91,7 +91,7 @@ public class HueSetColor extends Thread {
     *
     * get the current bulp state and save it in an arraylist with the bulp_id as index
     *
-     */
+     ******************************************************************************************************************/
     private String getBulpState(){
 
         String json = "";
@@ -120,7 +120,7 @@ public class HueSetColor extends Thread {
     *
     * create json by color
     *
-     */
+     ******************************************************************************************************************/
     private String getJsonFromColor(String color) {
 
         color = color.trim();
@@ -135,7 +135,6 @@ public class HueSetColor extends Thread {
             return "{\"on\":true,\"hue\": 0}";
         if(color.equals("blue"))
             return "{\"on\":true,\"hue\": 46920}";
-
 
         return "{\"on\":true}";
 

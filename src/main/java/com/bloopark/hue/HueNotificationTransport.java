@@ -39,7 +39,7 @@ public class HueNotificationTransport implements NotificationTransport {
 
         Descriptor of the new class
 
-     */
+    ******************************************************************************************************************/
     public HueNotificationTransport(String host, String port, String username, String bulps, boolean reset, String reset_ms, String color, String state, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
     {
         this.host = host;
@@ -58,7 +58,7 @@ public class HueNotificationTransport implements NotificationTransport {
     *
     *   send notifcation method overwritten. We will just need the build summery events of SUC and FAI and send via put the light codes
     *
-     */
+     ******************************************************************************************************************/
     @Override
     public void sendNotification(@NotNull Notification notification)
     {
@@ -94,7 +94,7 @@ public class HueNotificationTransport implements NotificationTransport {
     *
     * add the config window to bamboo
     *
-     */
+     ******************************************************************************************************************/
 
     private ResultsSummary getResultSummary(Event event)
     {
