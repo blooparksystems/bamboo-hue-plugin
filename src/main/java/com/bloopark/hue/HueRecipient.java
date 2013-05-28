@@ -73,15 +73,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
     @Override
     public void init(@Nullable String configurationData)
     {
-        // getting the setting from Admin Backend
-        final AdministrationConfiguration administrationConfiguration = ADMINISTRATION_CONFIGURATION_MANAGER.get().getAdministrationConfiguration();
-
-        host = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_HOST);
-        port = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_PORT);
-        username = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_USER);
-
-        getBulps();
-
         int firstIdx = configurationData.indexOf(';');
         if (firstIdx > 0)
         {
@@ -104,12 +95,20 @@ public class HueRecipient extends AbstractNotificationRecipient {
         get the bulp IDs and names via API call
      ******************************************************************************************************************/
     private void getBulps(){
+        // getting the setting from Admin Backend
+        final AdministrationConfiguration administrationConfiguration = ADMINISTRATION_CONFIGURATION_MANAGER.get().getAdministrationConfiguration();
+
+        this.host = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_HOST);
+        this.port = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_PORT);
+        this.username = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_USER);
 
         String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights";
+
 
         GetMethod get = new GetMethod(url);
 
         try {
+            client = new HttpClient();
             client.executeMethod(get);
             String response = get.getResponseBodyAsString();
 
@@ -122,13 +121,10 @@ public class HueRecipient extends AbstractNotificationRecipient {
                 for(int i=1;i<=jsonObject.length();i++){
                     subObject = jsonObject.getJSONObject(String.valueOf(i)) ;
                     if(subObject != null){
-
                         bulps.add(new Bulp(String.valueOf(i),subObject.getString("name")));
                     }
                 }
             }
-
-
 
             get.releaseConnection();
         } catch (IOException e) {

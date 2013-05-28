@@ -5,7 +5,6 @@
         <option value="${bulp.id}"> ${bulp.name} </option>
     [/#list]
     </select>
-
 </div>
 
 <div id="fieldArea_notification_hue_state" class="field-group required">
