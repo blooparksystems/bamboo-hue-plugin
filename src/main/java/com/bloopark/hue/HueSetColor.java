@@ -102,6 +102,8 @@ public class HueSetColor extends Thread {
             client.executeMethod(get);
             String response = get.getResponseBodyAsString();
 
+            System.out.println(response);
+
             JSONObject jsonObject = new JSONObject( response );
             JSONObject state = jsonObject.getJSONObject("state");
 
@@ -124,7 +126,6 @@ public class HueSetColor extends Thread {
     private String getJsonFromColor(String color) {
 
         color = color.trim();
-
         if(color.equals("green"))
             return "{\"on\":true, \"hue\": 25500}";
         if(color.equals("red"))

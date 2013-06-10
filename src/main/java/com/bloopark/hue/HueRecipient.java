@@ -104,7 +104,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
 
         String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights";
 
-
         GetMethod get = new GetMethod(url);
 
         try {
@@ -125,7 +124,6 @@ public class HueRecipient extends AbstractNotificationRecipient {
                     }
                 }
             }
-
             get.releaseConnection();
         } catch (IOException e) {
 
@@ -216,6 +214,12 @@ public class HueRecipient extends AbstractNotificationRecipient {
     public List<NotificationTransport> getTransports()
     {
         ArrayList list = new ArrayList();
+        // getting the setting from Admin Backend
+        final AdministrationConfiguration administrationConfiguration = ADMINISTRATION_CONFIGURATION_MANAGER.get().getAdministrationConfiguration();
+
+        this.host = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_HOST);
+        this.port = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_PORT);
+        this.username = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_USER);
 
         list.add(new HueNotificationTransport(host, port, username, bulp_id, reset, reset_ms, color, state, resultsSummaryManager, administrationConfigurationManager));
         return list;
