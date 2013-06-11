@@ -28,6 +28,7 @@ public class HueNotificationTransport implements NotificationTransport {
     private String username;
     private String port;
     private String bulps;
+    private String alert;
     private int reset_ms;
     private ResultsSummaryManager resultsSummaryManager;
     private AdministrationConfigurationManager administrationConfigurationManager;
@@ -40,7 +41,7 @@ public class HueNotificationTransport implements NotificationTransport {
         Descriptor of the new class
 
     ******************************************************************************************************************/
-    public HueNotificationTransport(String host, String port, String username, String bulps, boolean reset, String reset_ms, String color, String state, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
+    public HueNotificationTransport(String host, String port, String username, String bulps, boolean reset, String reset_ms, String color, String alert, String state, ResultsSummaryManager resultsSummaryManager, AdministrationConfigurationManager administrationConfigurationManager)
     {
         this.host = host;
         this.port = port;
@@ -52,6 +53,7 @@ public class HueNotificationTransport implements NotificationTransport {
         this.color = color;
         this.state = state;
         this.reset = reset;
+        this.alert = alert;
     }
 
     /*
@@ -65,30 +67,41 @@ public class HueNotificationTransport implements NotificationTransport {
         Event event = notification.getEvent();
 
 
-        if (event instanceof ChainResultEvent)
-        {
+
+        if (event instanceof ChainResultEvent){
+
             ResultsSummary result = getResultSummary(event);
-
-            String color = "";
-
-            if((result.getBuildState() == BuildState.FAILED) && (this.state == Constants.BLOOPARK_STATE_FAILED)){
-                color = this.color;
-            }else if ((result.getBuildState() == BuildState.SUCCESS) && (this.state == Constants.BLOOPARK_STATE_SUCCESS)){
-                color = this.color;
+            if(result.getBuildState() == BuildState.FAILED){
+                createHueRequest(Constants.BLOOPARK_STATE_FAILED);
+            }else if (result.getBuildState() == BuildState.SUCCESS){
+                createHueRequest(Constants.BLOOPARK_STATE_SUCCESS);
             }else{
-                color = this.color;
+                createHueRequest(Constants.BLOOPARK_STATE_UNKNOWN);
             }
 
-            String[] bulp = this.bulps.split(",");
+        }else{
+            createHueRequest(null);
+        }
 
-            for(int i=0;i<bulp.length;i++){
+    }
+
+    /*
+   *
+   *   create the request
+   *
+    ******************************************************************************************************************/
+    private void createHueRequest(String state){
+        String[] bulp = this.bulps.split(",");
+
+        for(int i=0;i<bulp.length;i++){
+            if((state.equals(this.state)) || (state == null)){
                 String url = "http://"+this.host+":"+this.port+"/api/"+this.username+"/lights/"+bulp[i];
-                HueSetColor hsc = new HueSetColor(url,color,bulp[i],this.reset,this.reset_ms);
+                HueSetColor hsc = new HueSetColor(url,color,alert,bulp[i],this.reset,this.reset_ms);
                 hsc.start();
             }
-
         }
     }
+
 
     /*
     *

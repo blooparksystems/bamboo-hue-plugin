@@ -31,6 +31,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     private String state        = null;
     private String reset_ms     = null;
     private String color        = null;
+    private String alert        = null;
     private boolean reset       = false;
     private String bulp_id      = "";
     private List<Bulp> bulps          = new ArrayList<Bulp>();
@@ -64,6 +65,8 @@ public class HueRecipient extends AbstractNotificationRecipient {
             color = params.get("hue_color")[0];
         if (params.containsKey("hue_state"))
             state = params.get("hue_state")[0];
+        if (params.containsKey("hue_alert"))
+            alert = params.get("hue_alert")[0];
 
     }
 
@@ -86,6 +89,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
             this.reset_ms   = conf[2];
             this.color      = conf[3];
             this.state      = conf[4];
+            this.alert      = conf[5];
 
         }
     }
@@ -144,7 +148,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
         if(reset){
             reset_str = "true";
         }
-        return bulp_id + ';' + reset_str + ';' + reset_ms + ';' + color + ';' + state;
+        return bulp_id + ';' + reset_str + ';' + reset_ms + ';' + color + ';' + state + ';' + alert;
     }
 
     /*
@@ -164,6 +168,12 @@ public class HueRecipient extends AbstractNotificationRecipient {
             context.put("hue_color", "green");
         }else{
             context.put("hue_color", this.color);
+        }
+
+        if(this.alert == null){
+            context.put("hue_alert", "none");
+        }else{
+            context.put("hue_alert", this.alert);
         }
 
         if(this.state == null){
@@ -202,6 +212,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
                 + "<br/>Bulp: " + b.getName() + " (ID: " + this.bulp_id + ")"
                 + reset_str
                 + "<br/>Color: " + this.color
+                + "<br/>Alert: " + this.alert
                 + "<br/>State: " + this.state;
     }
 
@@ -221,7 +232,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
         this.port = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_PORT);
         this.username = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_USER);
 
-        list.add(new HueNotificationTransport(host, port, username, bulp_id, reset, reset_ms, color, state, resultsSummaryManager, administrationConfigurationManager));
+        list.add(new HueNotificationTransport(host, port, username, bulp_id, reset, reset_ms, color, alert, state, resultsSummaryManager, administrationConfigurationManager));
         return list;
     }
 

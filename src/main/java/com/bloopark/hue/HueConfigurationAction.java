@@ -45,11 +45,6 @@ public class HueConfigurationAction extends BambooActionSupport {
         String port = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_PORT);
         String user = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_USER);
 
-        System.out.println(host);
-        System.out.println(port);
-        System.out.println(user);
-
-
         if(host == null) {
             host = "";
         }
@@ -77,11 +72,6 @@ public class HueConfigurationAction extends BambooActionSupport {
         if(administrationConfiguration == null) {
             return "error";
         }
-
-        System.out.println(blooparkHueHost);
-        System.out.println(blooparkHuePort);
-        System.out.println(blooparkHueUser);
-
 
         administrationConfiguration.setSystemProperty(Constants.BLOOPARK_HUE_HOST, blooparkHueHost);
         administrationConfiguration.setSystemProperty(Constants.BLOOPARK_HUE_PORT, blooparkHuePort);
