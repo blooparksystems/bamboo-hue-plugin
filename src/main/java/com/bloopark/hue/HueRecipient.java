@@ -11,10 +11,14 @@ import com.google.common.base.Supplier;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -37,6 +41,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     private List<Bulp> bulps          = new ArrayList<Bulp>();
     private HttpClient client;
 
+    private static final Logger log = Logger.getLogger(HueSetColor.class);
     private TemplateRenderer templateRenderer;
     private ResultsSummaryManager resultsSummaryManager;
     private AdministrationConfigurationManager administrationConfigurationManager;
@@ -129,8 +134,22 @@ public class HueRecipient extends AbstractNotificationRecipient {
                 }
             }
             get.releaseConnection();
+        } catch (UnknownHostException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
+        } catch (ConnectException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
+        } catch (SocketException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
         } catch (IOException e) {
-
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
         }
 
 
@@ -161,33 +180,38 @@ public class HueRecipient extends AbstractNotificationRecipient {
         getBulps();
         Map context = new HashMap();
 
-        if (this.reset_ms != null)
-            context.put("hue_reset_ms", this.reset_ms);
+        if(this.bulps.size() > 0){
 
-        if(this.color == null){
-            context.put("hue_color", "green");
+            if (this.reset_ms != null)
+                context.put("hue_reset_ms", this.reset_ms);
+
+            if(this.color == null){
+                context.put("hue_color", "green");
+            }else{
+                context.put("hue_color", this.color);
+            }
+
+            if(this.alert == null){
+                context.put("hue_alert", "none");
+            }else{
+                context.put("hue_alert", this.alert);
+            }
+
+            if(this.state == null){
+                context.put("hue_state", "successfull");
+            }else{
+                context.put("hue_state", this.state);
+            }
+
+            if(this.reset){
+                context.put("hue_reset","true");
+            }
+
+            context.put("bulps", bulps);
+            context.put("hue_error", "false");
         }else{
-            context.put("hue_color", this.color);
+               context.put("hue_error", "true");
         }
-
-        if(this.alert == null){
-            context.put("hue_alert", "none");
-        }else{
-            context.put("hue_alert", this.alert);
-        }
-
-        if(this.state == null){
-            context.put("hue_state", "successfull");
-        }else{
-            context.put("hue_state", this.state);
-        }
-
-        if(this.reset){
-            context.put("hue_reset","true");
-        }
-
-
-        context.put("bulps", bulps);
 
         return templateRenderer.render("editHue.ftl", context);
     }
@@ -201,19 +225,25 @@ public class HueRecipient extends AbstractNotificationRecipient {
     {
 
         getBulps();
-        String reset_str = "";
 
-        if(reset){
-            reset_str = "<br/>Reset time: " + this.reset_ms;
+        if(this.bulps.size() > 0){
+            String reset_str = "";
+
+            if(reset){
+                reset_str = "<br/>Reset time: " + this.reset_ms;
+            }
+
+            Bulp b = this.bulps.get(Integer.valueOf(this.bulp_id)-1);
+            return "<b>Hue</b>"
+                    + "<br/>Bulp: " + b.getName() + " (ID: " + this.bulp_id + ")"
+                    + reset_str
+                    + "<br/>Color: " + this.color
+                    + "<br/>Alert: " + this.alert
+                    + "<br/>State: " + this.state;
+        }else{
+            return "<b>Error: HUE API not reachable</b>.<br/>Please check the configuration in the backend and your HUE Bridge.";
         }
 
-        Bulp b = this.bulps.get(Integer.valueOf(this.bulp_id)-1);
-        return "<b>Hue</b>"
-                + "<br/>Bulp: " + b.getName() + " (ID: " + this.bulp_id + ")"
-                + reset_str
-                + "<br/>Color: " + this.color
-                + "<br/>Alert: " + this.alert
-                + "<br/>State: " + this.state;
     }
 
 
