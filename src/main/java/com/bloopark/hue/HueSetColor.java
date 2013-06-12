@@ -1,14 +1,15 @@
 package com.bloopark.hue;
 
 
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-
+import org.apache.log4j.Logger;
 import java.io.IOException;
+import java.net.*;
+
 
 public class HueSetColor extends Thread {
 
@@ -21,6 +22,7 @@ public class HueSetColor extends Thread {
     private boolean reset_color     = false;
     private String url              = null;
     private HttpClient client;
+    private static final Logger log = Logger.getLogger(HueSetColor.class);
     /*
     *
     * Contructor for setting all data we need
@@ -83,13 +85,23 @@ public class HueSetColor extends Thread {
             m.setRequestEntity(requestEntity);
 
             client.executeMethod(m);
-
-        }catch (java.io.UnsupportedEncodingException e){} catch (HttpException e) {
-            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
+        } catch (ConnectException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
+        } catch (SocketException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
         }
-
 
     }
 
