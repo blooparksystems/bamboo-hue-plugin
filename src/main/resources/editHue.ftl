@@ -28,6 +28,15 @@
     </select>
 </div>
 
+<div id="fieldArea_notification_hue_alert" class="field-group required">
+    <label for="notification_hue_alert" id="fieldLabelArea_notification_hue_alert">Alert</label>
+    <select name="hue_alert" size="1">
+        <option [#if hue_alert = "none"] selected[/#if]> none</option>
+        <option [#if hue_alert = "select"] selected[/#if]> select</option>
+        <option [#if hue_alert = "lselect"] selected[/#if]> lselect</option>
+    </select>
+</div>
+
 <div id="fieldArea_notification_hue_reset" class="field-group required">
     <label for="notification_hue_reset" id="fieldLabelArea_notification_hue_reset">&nbsp;</label>
 [#if hue_reset?has_content]

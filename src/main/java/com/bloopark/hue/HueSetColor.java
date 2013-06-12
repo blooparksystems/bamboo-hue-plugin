@@ -6,8 +6,10 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-
+import org.apache.log4j.Logger;
 import java.io.IOException;
+import java.net.*;
+
 
 public class HueSetColor extends Thread {
 
@@ -15,20 +17,23 @@ public class HueSetColor extends Thread {
     private String target_state     = null;
     private String color            = null;
     private String bulpID           = null;
+    private String alert            = "none";
     private int reset_time          = 0;
     private boolean reset_color     = false;
     private String url              = null;
     private HttpClient client;
+    private static final Logger log = Logger.getLogger(HueSetColor.class);
     /*
     *
     * Contructor for setting all data we need
     ******************************************************************************************************************/
-    public HueSetColor(String url, String color, String bulpID, boolean reset, int reset_time){
+    public HueSetColor(String url, String color, String alert, String bulpID, boolean reset, int reset_time){
         this.url            = url;
         this.color          = color;
         this.bulpID         = bulpID;
         this.reset_color    = reset;
         this.reset_time     = reset_time;
+        this.alert          = alert;
 
         this.client = new HttpClient();
 
@@ -43,16 +48,20 @@ public class HueSetColor extends Thread {
      ******************************************************************************************************************/
     public void run() {
 
-        this.setBulpState(this.target_state);
-
         if(reset_color){
+            this.current_state = getBulpState();
+
             try {
+                this.setBulpState(this.target_state);
                 sleep(reset_time);
                 this.setBulpState(this.current_state);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
+        } else{
+
+            this.setBulpState(this.target_state);
         }
 
     }
@@ -76,13 +85,23 @@ public class HueSetColor extends Thread {
             m.setRequestEntity(requestEntity);
 
             client.executeMethod(m);
-
-        }catch (java.io.UnsupportedEncodingException e){} catch (HttpException e) {
-            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
+        } catch (ConnectException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
+        } catch (SocketException e) {
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("############# HUE API ###############");
+            log.error("Could not connect to HUE API: " + url);
+            log.error(e.getMessage());
         }
-
 
     }
 
@@ -101,8 +120,6 @@ public class HueSetColor extends Thread {
         try {
             client.executeMethod(get);
             String response = get.getResponseBodyAsString();
-
-            System.out.println(response);
 
             JSONObject jsonObject = new JSONObject( response );
             JSONObject state = jsonObject.getJSONObject("state");
@@ -125,19 +142,23 @@ public class HueSetColor extends Thread {
      ******************************************************************************************************************/
     private String getJsonFromColor(String color) {
 
+        String json = "{\"on\":true, \"alert\": \"__alert__\"}";
+
         color = color.trim();
         if(color.equals("green"))
-            return "{\"on\":true, \"hue\": 25500}";
+            json = "{\"on\":true, \"hue\": 25500, \"alert\": \"__alert__\"}";
         if(color.equals("red"))
-            return "{\"on\":true,\"hue\": 0}";
+            json = "{\"on\":true,\"hue\": 0, \"alert\": \"__alert__\"}";
         if(color.equals("orange"))
-            return "{\"on\":true,\"hue\": 0}";
+            json = "{\"on\":true,\"hue\": 46920, \"ct\":500, \"sat\":200, \"alert\": \"__alert__\"}";
         if(color.equals("yellow"))
-            return "{\"on\":true,\"hue\": 0}";
+            json = "{\"on\":true,\"hue\": 12750, \"sat\":100, \"alert\": \"__alert__\"}";
         if(color.equals("blue"))
-            return "{\"on\":true,\"hue\": 46920}";
+            json = "{\"on\":true,\"hue\": 46920, \"sat\":200, \"alert\": \"__alert__\"}";
 
-        return "{\"on\":true}";
+        json = json.replace("__alert__", this.alert);
+
+        return json;
 
     }
 }
