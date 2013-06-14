@@ -7,14 +7,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.bloopark.hue</groupId>
     <artifactId>hue</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <organization>
         <name>bloopark systems GmbH  Co KG</name>
         <url>http://www.bloopark.com/</url>
     </organization>
 
-    <name>hue</name>
+    <name>bam!hue</name>
     <description>This plugin will show the build stats on your Phillips hue bulps.</description>
     <packaging>atlassian-plugin</packaging>
 

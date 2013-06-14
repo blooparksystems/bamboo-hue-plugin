@@ -8,7 +8,7 @@
      </div>
 [#else]
     <div id="fieldArea_notification_hue_bulp" class="field-group required">
-        <label for="notification_hue_bulp" id="fieldLabelArea_notification_hue_bulp">Bulp</label>
+        <label for="notification_hue_bulp" id="fieldLabelArea_notification_hue_bulp">Bulb</label>
         <select id="hue_bulp" name="hue_bulp">
         [#list bulps as bulp]
             <option value="${bulp.id}"> ${bulp.name} </option>
@@ -17,7 +17,7 @@
     </div>
 
     <div id="fieldArea_notification_hue_state" class="field-group required">
-        <label for="notification_hue_state" id="fieldLabelArea_notification_hue_state">Event</label>
+        <label for="notification_hue_state" id="fieldLabelArea_notification_hue_state">Event Result</label>
         <select name="hue_state" size="1">
             <option [#if hue_state = "success"] selected[/#if]> success</option>
             <option [#if hue_state = "fail"] selected[/#if]> fail</option>

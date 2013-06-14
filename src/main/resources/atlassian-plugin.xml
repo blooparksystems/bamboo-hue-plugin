@@ -21,7 +21,7 @@
     </web-resource>
 
     <web-item key="bloopark_hue_key" name="Configure Hue" section="system.admin/plugins">
-        <label key="Configure Hue" />
+        <label key="Configure bam!hue" />
         <link linkId="configureHue">/admin/configureHue!default.action</link>
     </web-item>
 
@@ -46,7 +46,7 @@
 
 
     <notificationRecipient key="recipient.hue" name="Hue Recipient" class="com.bloopark.hue.HueRecipient" weight="10">
-        <description>Hue</description>
+        <description>bam!hue</description>
         <resource type="freemarker" name="edit" location="editHue.ftl"/>
     </notificationRecipient>
 

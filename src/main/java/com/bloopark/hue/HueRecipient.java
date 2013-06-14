@@ -10,6 +10,7 @@ import com.atlassian.bamboo.template.TemplateRenderer;
 import com.google.common.base.Supplier;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -40,6 +42,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
     private String bulp_id      = "";
     private List<Bulp> bulps          = new ArrayList<Bulp>();
     private HttpClient client;
+    private boolean isReachable = false;
 
     private static final Logger log = Logger.getLogger(HueSetColor.class);
     private TemplateRenderer templateRenderer;
@@ -105,6 +108,7 @@ public class HueRecipient extends AbstractNotificationRecipient {
      ******************************************************************************************************************/
     private void getBulps(){
         // getting the setting from Admin Backend
+        bulps.clear();
         final AdministrationConfiguration administrationConfiguration = ADMINISTRATION_CONFIGURATION_MANAGER.get().getAdministrationConfiguration();
 
         this.host = administrationConfiguration.getSystemProperty(Constants.BLOOPARK_HUE_HOST);
@@ -116,42 +120,60 @@ public class HueRecipient extends AbstractNotificationRecipient {
         GetMethod get = new GetMethod(url);
 
         try {
-            client = new HttpClient();
-            client.executeMethod(get);
-            String response = get.getResponseBodyAsString();
-
-            JSONObject jsonObject = new JSONObject( response );
-
-            JSONObject subObject;
-
-            if((jsonObject != null) && (jsonObject.length()>0)){
-                bulps.clear();
-                for(int i=1;i<=jsonObject.length();i++){
-                    subObject = jsonObject.getJSONObject(String.valueOf(i)) ;
-                    if(subObject != null){
-                        bulps.add(new Bulp(String.valueOf(i),subObject.getString("name")));
-                    }
-                }
-            }
-            get.releaseConnection();
-        } catch (UnknownHostException e) {
-            log.error("############# HUE API ###############");
-            log.error("Could not connect to HUE API: " + url);
-            log.error(e.getMessage());
-        } catch (ConnectException e) {
-            log.error("############# HUE API ###############");
-            log.error("Could not connect to HUE API: " + url);
-            log.error(e.getMessage());
-        } catch (SocketException e) {
-            log.error("############# HUE API ###############");
-            log.error("Could not connect to HUE API: " + url);
-            log.error(e.getMessage());
+            this.isReachable = InetAddress.getByName(this.host).isReachable(1000);
         } catch (IOException e) {
             log.error("############# HUE API ###############");
             log.error("Could not connect to HUE API: " + url);
             log.error(e.getMessage());
         }
 
+        if(this.isReachable){
+            try {
+                client = new HttpClient();
+                client.getParams().setParameter("http.socket.timeout", new Integer(1000));
+                client.getParams().setParameter("http.protocol.content-charset", "UTF-8");
+
+
+                client.executeMethod(get);
+                String response = get.getResponseBodyAsString();
+
+                JSONObject jsonObject = new JSONObject( response );
+
+                JSONObject subObject;
+
+                if((jsonObject != null) && (jsonObject.length()>0)){
+                    for(int i=1;i<=jsonObject.length();i++){
+                        subObject = jsonObject.getJSONObject(String.valueOf(i)) ;
+                        if(subObject != null){
+                            bulps.add(new Bulp(String.valueOf(i),subObject.getString("name")));
+                        }
+                    }
+                }
+                get.releaseConnection();
+            } catch (HttpException e) {
+                log.error("############# HUE API ###############");
+                log.error("Could not connect to HUE API: " + url);
+                log.error(e.getMessage());
+            }catch (UnknownHostException e) {
+                log.error("############# HUE API ###############");
+                log.error("Could not connect to HUE API: " + url);
+                log.error(e.getMessage());
+            } catch (ConnectException e) {
+                log.error("############# HUE API ###############");
+                log.error("Could not connect to HUE API: " + url);
+                log.error(e.getMessage());
+            } catch (SocketException e) {
+                log.error("############# HUE API ###############");
+                log.error("Could not connect to HUE API: " + url);
+                log.error(e.getMessage());
+            } catch (IOException e) {
+                log.error("############# HUE API ###############");
+                log.error("Could not connect to HUE API: " + url);
+                log.error(e.getMessage());
+            } finally {
+                get.releaseConnection();
+            }
+        }
 
     }
 
@@ -235,11 +257,11 @@ public class HueRecipient extends AbstractNotificationRecipient {
 
             Bulp b = this.bulps.get(Integer.valueOf(this.bulp_id)-1);
             return "<b>Hue</b>"
-                    + "<br/>Bulp: " + b.getName() + " (ID: " + this.bulp_id + ")"
+                    + "<br/>Bulb: " + b.getName() + " (ID: " + this.bulp_id + ")"
                     + reset_str
                     + "<br/>Color: " + this.color
                     + "<br/>Alert: " + this.alert
-                    + "<br/>State: " + this.state;
+                    + "<br/>Result: " + this.state;
         }else{
             return "<b>Error: HUE API not reachable</b>.<br/>Please check the configuration in the backend and your HUE Bridge.";
         }

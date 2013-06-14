@@ -146,15 +146,15 @@ public class HueSetColor extends Thread {
 
         color = color.trim();
         if(color.equals("green"))
-            json = "{\"on\":true, \"hue\": 25500, \"alert\": \"__alert__\"}";
+            json = "{\"on\":true, \"bri\":206,\"hue\":24764,\"sat\":226,\"xy\":[0.4136,0.4967],\"ct\":296, \"alert\": \"__alert__\"}";
         if(color.equals("red"))
             json = "{\"on\":true,\"hue\": 0, \"alert\": \"__alert__\"}";
         if(color.equals("orange"))
-            json = "{\"on\":true,\"hue\": 46920, \"ct\":500, \"sat\":200, \"alert\": \"__alert__\"}";
+            json = "{\"on\":true,\"bri\":206,\"hue\":10541,\"sat\":237,\"xy\":[0.4922,0.3897],\"ct\":424, \"alert\": \"__alert__\"}";
         if(color.equals("yellow"))
-            json = "{\"on\":true,\"hue\": 12750, \"sat\":100, \"alert\": \"__alert__\"}";
+            json = "{\"on\":true,\"bri\":206,\"hue\":15665,\"sat\":161,\"xy\":[0.4382,0.4045],\"ct\":494, \"alert\": \"__alert__\"}";
         if(color.equals("blue"))
-            json = "{\"on\":true,\"hue\": 46920, \"sat\":200, \"alert\": \"__alert__\"}";
+            json = "{\"on\":true,\"bri\":206,\"hue\":46282,\"sat\":252,\"xy\":[0.1779,0.0608],\"ct\":500, \"alert\": \"__alert__\"}";
 
         json = json.replace("__alert__", this.alert);
 
